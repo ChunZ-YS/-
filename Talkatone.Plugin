@@ -1,7 +1,7 @@
 #!name = Talkatone
 #!desc = Talkatone仅限登录分流，插件内选择代理指向策略组。
 #!author = @LowerTop @YunS
-#!icon = https://loon.trevely.us.kg/Talkatone.png
+#!icon = https://raw.githubusercontent.com/lige47/QuanX-icon-rule/refs/heads/main/icon/talkatone.png
 
 [Rule]
 # 以下为该软件部分去广告规则
@@ -94,10 +94,3 @@ IP-CIDR,216.172.154.0/24,DIRECT,no-resolve
 IP-CIDR,50.117.27.0/24,DIRECT,no-resolve
 IP-CIDR,63.251.124.0/24,DIRECT,no-resolve
 IP-CIDR,69.46.75.0/24,DIRECT,no-resolve
-
-# 本模块暂不启用以下内容
-# [URL Rewrite]
-# ^https?:\/\/alt-r\.my\.com\/mobile - reject-dict
-# ^https?:\/\/imgx\.jampp\.com\/imgsrv\/tn - reject-img
-# [MITM]
-# hostname = %APPEND% alt-r.my.com, imgx.
