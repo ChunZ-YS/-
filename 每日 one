@@ -1,0 +1,9 @@
+#!name=每日 ONE
+#!icon=https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIFo2hRNgKtUSf_5Fqq65D-5srmxe9xAAIvxDEbhB-QUg1ZBV-Yw0lfAQADAgADbQADNgQ.png
+
+[Argument]
+RunTime = input,"0 21 * * *",tag=自定义执行时间,desc=可手动更改脚本运行时间，默认晚上九点
+
+[Script]
+# 每日ONE
+cron {RunTime} script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/refs/heads/main/one_daily_task.js, tag=每日ONE, timeout=15
