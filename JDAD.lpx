@@ -1,0 +1,49 @@
+#!name=京东
+#!desc=去除京东 App 开屏广告、首页 banner / 活动 / 动态 icon / 浮动图标 / 弹窗等
+#!category=ad
+#!icon=https://raw.githubusercontent.com/qsoyq/icons/main/assets/icon/jd.png
+
+[MITM]
+hostname = api.m.jd.com
+
+[Rewrite]
+# 开屏广告
+^https://api\.m\.jd\.com/client\.action\?functionId=start$ response-jq '.images=[]'
+
+# 首页 banner
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.floorList |= map(select(.floorId!=12826))'
+
+# 首页活动
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.floorList |= map(select(.floorId!=12074))'
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.floorList |= map(select(.floorId!=12818))'
+
+# 首页动态 icon
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.floorList |= map(select(.type!="dynamicIcon"))'
+
+# 首页右侧浮动 icon
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.floorList |= map(select(.type!="float"))'
+
+# 首页资质与规则
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.floorList |= map(select(.type!="ruleFloat"))'
+
+# 预埋活动位
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.futureFloorList=[]'
+
+# 首页顶部背景图
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.topBgImgBig=""'
+
+# 右上角促销
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.promotionTabs={}'
+
+# 顶部标签｜特价
+^https://api\.m\.jd\.com/client\.action\?functionId=welcomeHome$ response-jq '.multipleTabs.content.data |= map(select(.tabName!="特价"))'
+
+# 底部菜单｜逛
+^https://api\.m\.jd\.com/client\.action\?functionId=readCustomSurfaceList$ response-jq '.nodeMap.normal.navigationAll |= map(select(.cutLabelName!="逛"))'
+
+# 页面弹窗
+^https://api\.m\.jd\.com/client\.action\?functionId=queryPagePopWindow$ response-jq '.activityId=""'
+^https://api\.m\.jd\.com/client\.action\?functionId=queryPagePopWindow$ response-jq '.channelPoint=[]'
+
+# 秒送活动弹窗
+^https://api\.m\.jd\.com/client\.action\?functionId=hours_home$ response-jq '.result.config.startPopupFloor.data=[]'
