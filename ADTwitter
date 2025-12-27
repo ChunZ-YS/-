@@ -14,10 +14,10 @@ DOMAIN-SUFFIX,ads.x.com,REJECT
 
 [Script]
 # 时间线 Promoted 推文过滤
-http-response ^https:\/\/(api|api\.x)\.twitter\.com\/2\/timeline\/(home|list|search).* script-path=twitter_adblock.js, requires-body=true, timeout=10
+http-response ^https:\/\/(api|api\.x)\.twitter\.com\/2\/timeline\/(home|list|search).* script-path=https://raw.githubusercontent.com/ChunZ-YS/-/refs/heads/main/TwitterJS, requires-body=true, timeout=10
 
 # 搜索页广告
-http-response ^https:\/\/(api|api\.x)\.twitter\.com\/2\/search\/adaptive.* script-path=twitter_adblock.js, requires-body=true, timeout=10
+http-response ^https:\/\/(api|api\.x)\.twitter\.com\/2\/search\/adaptive.* script-path=https://raw.githubusercontent.com/ChunZ-YS/-/refs/heads/main/TwitterJS, requires-body=true, timeout=10
 
 [MITM]
 hostname = api.twitter.com, api.x.twitter.com
