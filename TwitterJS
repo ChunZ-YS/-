@@ -1,42 +1,42 @@
-/*
- * Twitter / X Promoted Ads Filter
- * 只删除 promoted / ads，不动正常推文
- */
-
 let body = $response.body;
 if (!body) $done({});
 
 try {
-  let obj = JSON.parse(body);
+  const obj = JSON.parse(body);
 
-  // 通用递归过滤函数
-  const removeAds = (data) => {
-    if (Array.isArray(data)) {
-      return data.filter(item => {
-        if (!item) return true;
+  // 只处理 timeline instructions
+  const timeline =
+    obj?.data?.home?.home_timeline_urt ||
+    obj?.data?.search?.timeline ||
+    obj?.data?.list?.timeline;
 
-        // promoted 标记
-        if (item.promoted_metadata) return false;
-        if (item.ad_metadata) return false;
+  if (timeline?.instructions) {
+    timeline.instructions.forEach(ins => {
+      if (Array.isArray(ins.entries)) {
+        ins.entries = ins.entries.filter(e => {
+          if (!e) return true;
 
-        // entryId 含 promoted
-        if (item.entryId && /promoted/i.test(item.entryId)) return false;
+          // entryId 含 promoted
+          if (e.entryId && /promoted/i.test(e.entryId)) return false;
 
-        return true;
-      }).map(removeAds);
-    } else if (typeof data === 'object') {
-      for (let key in data) {
-        data[key] = removeAds(data[key]);
+          // 推文级广告标记
+          const content = e.content;
+          if (
+            content?.itemContent?.promotedMetadata ||
+            content?.itemContent?.adMetadata
+          ) {
+            return false;
+          }
+
+          return true;
+        });
       }
-    }
-    return data;
-  };
-
-  obj = removeAds(obj);
+    });
+  }
 
   body = JSON.stringify(obj);
 } catch (e) {
-  // 解析失败直接放行
+  // 出错直接放行
 }
 
 $done({ body });
