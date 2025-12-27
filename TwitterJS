@@ -1,0 +1,42 @@
+/*
+ * Twitter / X Promoted Ads Filter
+ * 只删除 promoted / ads，不动正常推文
+ */
+
+let body = $response.body;
+if (!body) $done({});
+
+try {
+  let obj = JSON.parse(body);
+
+  // 通用递归过滤函数
+  const removeAds = (data) => {
+    if (Array.isArray(data)) {
+      return data.filter(item => {
+        if (!item) return true;
+
+        // promoted 标记
+        if (item.promoted_metadata) return false;
+        if (item.ad_metadata) return false;
+
+        // entryId 含 promoted
+        if (item.entryId && /promoted/i.test(item.entryId)) return false;
+
+        return true;
+      }).map(removeAds);
+    } else if (typeof data === 'object') {
+      for (let key in data) {
+        data[key] = removeAds(data[key]);
+      }
+    }
+    return data;
+  };
+
+  obj = removeAds(obj);
+
+  body = JSON.stringify(obj);
+} catch (e) {
+  // 解析失败直接放行
+}
+
+$done({ body });
