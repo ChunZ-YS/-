@@ -1,0 +1,117 @@
+/** * 桌面小组件 3: 网络信息 (像素级统一字号版) */
+export default async function(ctx) {
+  const BG_COLORS = [
+    { light: '#FDFBF7', dark: '#1F252B' },
+    { light: '#E4EBDC', dark: '#2A3138' },
+    { light: '#DEE5EE', dark: '#313A44' },
+    { light: '#C6D8E4', dark: '#3A4652' }
+  ];
+  const C_TITLE = { light: '#4A5568', dark: '#D8E1EA' };
+  const C_SUB = { light: 'rgba(74,85,104,0.65)', dark: 'rgba(216,225,234,0.62)' };
+  const C_GREEN = { light: '#A5C4B4', dark: '#9FBFAE' };
+  const C_MAIN = { light: '#4A5568', dark: '#C7D1DB' };
+
+  const fmtISP = (isp) => {
+    if (!isp) return "未知";
+    const s = String(isp).toLowerCase();
+    if (/移动|mobile|cmcc/i.test(s)) return "中国移动";
+    if (/电信|telecom|chinanet/i.test(s)) return "中国电信";
+    if (/联通|unicom/i.test(s)) return "中国联通";
+    if (/广电|broadcast|cbn/i.test(s)) return "中国广电";
+    return isp;
+  };
+
+  const d = ctx.device || {};
+  const isWifi = !!d.wifi?.ssid;
+  let netName = "未连接", netIcon = "antenna.radiowaves.left.and.right";
+  if (isWifi) {
+    netName = d.wifi.ssid;
+    netIcon = "wifi";
+  } else if (d.cellular?.radio) {
+    const radioMap = { "GPRS": "2.5G", "EDGE": "2.75G", "WCDMA": "3G", "LTE": "4G", "NR": "5G (NR)", "NRNSA": "5G (NR)" };
+    const rawRadio = d.cellular.radio.toUpperCase().replace(/\s+/g, "");
+    netName = `蜂窝: ${radioMap[rawRadio] || rawRadio}`;
+  }
+
+  const localIp = d.ipv4?.address || "获取失败";
+  const gateway = d.ipv4?.gateway || "获取失败";
+
+  let pubIp = "获取失败", pubLoc = "未知位置", pubIsp = "未知运营商";
+  try {
+    const res = await ctx.http.get('https://myip.ipip.net/json', { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 4000 });
+    const body = JSON.parse(await res.text());
+    if (body && body.data) {
+      pubIp = body.data.ip || "获取失败";
+      const locArr = body.data.location || [];
+      pubLoc = ` ${locArr[0] || "中国"} ${locArr[1] || ""} ${locArr[2] || ""}`.trim() || "未知位置";
+      pubIsp = fmtISP(locArr[4] || locArr[3]);
+    }
+  } catch (e) {}
+
+  if (pubIp === "获取失败" || !pubIp) {
+    try {
+      const res126 = await ctx.http.get('https://ipservice.ws.126.net/locate/api/getLocByIp', { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 4000 });
+      const body126 = JSON.parse(await res126.text());
+      if (body126 && body126.result) {
+        pubIp = body126.result.ip;
+        pubLoc = ` 中国 ${body126.result.province || ""} ${body126.result.city || ""}`.trim();
+        pubIsp = fmtISP(body126.result.operator || body126.result.company);
+      }
+    } catch (e) {}
+  }
+
+  // ✨ 100% 统一 Row 样式：字号全部锁死在 11
+  const Row = (ic, icCol, label, val, valCol) => ({
+    type: 'stack',
+    direction: 'row',
+    alignItems: 'center',
+    gap: 6,
+    children: [
+      { type: 'image', src: `sf-symbol:${ic}`, color: icCol, width: 13, height: 13 },
+      { type: 'text', text: label, font: { size: 11 }, textColor: C_SUB },
+      { type: 'spacer' },
+      { type: 'text', text: val, font: { size: 11, weight: 'bold', family: 'Menlo' }, textColor: valCol, maxLines: 1, minScale: 0.6 }
+    ]
+  });
+
+  return {
+    type: 'widget',
+    padding: 14,
+    backgroundGradient: {
+      type: 'linear',
+      colors: BG_COLORS,
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 1, y: 1 }
+    },
+    children: [
+      {
+        type: 'stack',
+        direction: 'row',
+        alignItems: 'center',
+        gap: 6,
+        children: [
+          { type: 'image', src: `sf-symbol:${netIcon}`, color: C_TITLE, width: 16, height: 16 },
+          { type: 'text', text: '网络信息', font: { size: 14, weight: 'heavy' }, textColor: C_TITLE },
+          { type: 'spacer' },
+          { type: 'text', text: 'Local & Public', font: { size: 9 }, textColor: { light: 'rgba(74,85,104,0.35)', dark: 'rgba(216,225,234,0.30)' } }
+        ]
+      },
+      { type: 'spacer', length: 12 },
+      {
+        type: 'stack',
+        direction: 'column',
+        gap: 4,
+        children: [
+          Row("network", { light: '#95A5C3', dark: '#9EB3D1' }, "当前连接", netName, C_GREEN),
+          Row("iphone", { light: '#A5C4B4', dark: '#9FBFAE' }, "内网 IP", localIp, C_GREEN),
+          Row("wifi.router.fill", { light: '#D8B97B', dark: '#C9B07B' }, "路由网关", gateway, C_GREEN),
+          { type: 'spacer', length: 2 },
+          Row("globe", { light: '#95A5C3', dark: '#9EB3D1' }, "直连公网", pubIp, C_GREEN),
+          Row("mappin.and.ellipse", { light: '#95A5C3', dark: '#9EB3D1' }, "所在位置", pubLoc, C_MAIN),
+          Row("antenna.radiowaves.left.and.right", { light: '#95A5C3', dark: '#9EB3D1' }, "运营商", pubIsp, C_MAIN)
+        ]
+      },
+      { type: 'spacer' }
+    ]
+  };
+}
