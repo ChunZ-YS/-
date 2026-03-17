@@ -1,8 +1,9 @@
 #!name = Talkatone
-#!desc = Talkatone 日常使用分流，插件内选择代理指向策略组。
-#!author = @LowerTop @YunS
+#!desc = Talkatone 日常使用分流，插件内选择代理指向策略组，默认Proxy。
+#!author = 原作者@LowerTop @YunS 修改@Li_Khixang
 #!icon = https://raw.githubusercontent.com/lige47/QuanX-icon-rule/refs/heads/main/icon/talkatone.png
-
+#!arguments=Proxy:Proxy
+#!arguments-desc=Proxy: 选择策略组,默认Proxy.
 [Rule]
 # 以下为该软件部分去广告规则
 # DOMAIN-KEYWORD,googleads,REJECT
@@ -72,12 +73,12 @@ DOMAIN-SUFFIX,wv.inner-active.mobi,REJECT
 DOMAIN-SUFFIX,www.googletagservices-cn.com,REJECT
 
 # 以下为该软件可能需要走代理的规则
-DOMAIN-SUFFIX,tktn.at,PROXY
-DOMAIN-SUFFIX,tktn.be,PROXY
+DOMAIN-SUFFIX,tktn.at,{{{Proxy}}}
+DOMAIN-SUFFIX,tktn.be,{{{Proxy}}}
 # 语音留言地址，一般需要代理
-DOMAIN-SUFFIX,vm.talkatone.com,PROXY
+DOMAIN-SUFFIX,vm.talkatone.com,{{{Proxy}}}
 # 贴图服务
-DOMAIN-SUFFIX,tenor.com,PROXY
+DOMAIN-SUFFIX,tenor.com,{{{Proxy}}}
 
 # 以下为该软件可能需要走直连的规则
 DOMAIN-SUFFIX,agkn.com,DIRECT
@@ -85,7 +86,6 @@ DOMAIN-SUFFIX,cohere.com,DIRECT
 DOMAIN-SUFFIX,crashlytics.com,DIRECT
 DOMAIN-SUFFIX,inmobi.com,DIRECT
 DOMAIN-SUFFIX,inner-active.mobi,DIRECT
-DOMAIN-SUFFIX,ip-api.com,DIRECT
 DOMAIN-SUFFIX,kochava.com,DIRECT
 DOMAIN-SUFFIX,mobilefuse.com,DIRECT
 DOMAIN-SUFFIX,talkatone.com,DIRECT
